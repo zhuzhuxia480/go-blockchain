@@ -1,15 +1,18 @@
 package blockchain
 
-import "go-blockchain/block"
+import (
+	"go-blockchain/block"
+)
 
 type BlockChain struct {
-	blocks []*block.Block
+	Blocks []*block.Block
 }
 
-func (bc BlockChain) AddBlock(data string) {
-	prevBlock := bc.blocks[len(bc.blocks)-1]
+func (bc *BlockChain) AddBlock(data string) {
+	prevBlock := bc.Blocks[len(bc.Blocks)-1]
+
 	newBlock := block.NewBlock(data, prevBlock.Hash)
-	bc.blocks = append(bc.blocks, newBlock)
+	bc.Blocks = append(bc.Blocks, newBlock)
 }
 
 func NewBlockChain() *BlockChain {
