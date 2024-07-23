@@ -3,6 +3,7 @@ package block
 import (
 	"bytes"
 	"crypto/sha256"
+	"go-blockchain/proofofwork"
 	"strconv"
 	"time"
 )
@@ -12,6 +13,7 @@ type Block struct {
 	Data         []byte
 	PreBlockHash []byte
 	Hash         []byte
+	Nonce        int
 }
 
 func (b *Block) SetHash() {
@@ -27,8 +29,12 @@ func NewBlock(data string, preBlockHash []byte) *Block {
 		[]byte(data),
 		preBlockHash,
 		[]byte{},
+		0,
 	}
-	block.SetHash()
+	pow := proofofwork.NewProofOfWork(block)
+	nonce, hash := pow.Run()
+	block.Hash = hash
+	block.Nonce = nonce
 	return block
 }
 
