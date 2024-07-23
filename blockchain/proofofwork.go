@@ -1,9 +1,8 @@
-package proofofwork
+package blockchain
 
 import (
 	"bytes"
 	"crypto/sha256"
-	"go-blockchain/block"
 	"go-blockchain/util"
 	"log"
 	"math"
@@ -14,11 +13,11 @@ const targetBit = 24
 const maxNonce = math.MaxInt64
 
 type ProofOfWork struct {
-	block  *block.Block
+	block  *Block
 	target *big.Int
 }
 
-func NewProofOfWork(b *block.Block) *ProofOfWork {
+func NewProofOfWork(b *Block) *ProofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBit))
 	return &ProofOfWork{
@@ -27,7 +26,7 @@ func NewProofOfWork(b *block.Block) *ProofOfWork {
 	}
 }
 
-func (pow ProofOfWork) PrepareData(nonce int) []byte {
+func (pow *ProofOfWork) PrepareData(nonce int) []byte {
 	bytes := bytes.Join([][]byte{
 		pow.block.PreBlockHash,
 		pow.block.Data,
@@ -40,16 +39,19 @@ func (pow ProofOfWork) PrepareData(nonce int) []byte {
 
 
 
-func (pow ProofOfWork) Run() (int, []byte) {
+func (pow *ProofOfWork) Run() (int, []byte) {
+	log.Println("start to calc block:", string(pow.block.Data))
 	nonce := 0
 	var hash [32]byte
 	var hasInt big.Int
 	for nonce = 0; nonce < maxNonce; nonce++ {
 		data := pow.PrepareData(nonce)
 		hash = sha256.Sum256(data)
-		log.Printf("\r%x", hash)
+
 		hasInt.SetBytes(hash[:])
 		if hasInt.Cmp(pow.target) == -1 {
+			log.Println("end calc block:",  string(pow.block.Data))
+			log.Printf("\r%x", hash)
 			break
 		} else {
 			nonce++
@@ -58,7 +60,7 @@ func (pow ProofOfWork) Run() (int, []byte) {
 	return nonce, hash[:]
 }
 
-func (pow ProofOfWork) Validate() bool {
+func (pow *ProofOfWork) Validate() bool {
 	var hashInt big.Int
 	data := pow.PrepareData(pow.block.Nonce)
 	hash := sha256.Sum256(data)

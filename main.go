@@ -1,9 +1,10 @@
 package main
 
 import (
+	"go-blockchain/blockchain"
 	"log"
+	"strconv"
 )
-import "go-blockchain/blockchain"
 
 func main() {
 	bc := blockchain.NewBlockChain()
@@ -15,6 +16,8 @@ func main() {
 		log.Printf("Prev. hash: %x\n", block.PreBlockHash)
 		log.Printf("Data: %s\n", block.Data)
 		log.Printf("Hash: %x\n", block.Hash)
+		pow := blockchain.NewProofOfWork(block)
+		log.Println(strconv.FormatBool(pow.Validate()))
 		log.Println()
 	}
 }

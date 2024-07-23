@@ -1,9 +1,8 @@
-package block
+package blockchain
 
 import (
 	"bytes"
 	"crypto/sha256"
-	"go-blockchain/proofofwork"
 	"strconv"
 	"time"
 )
@@ -31,7 +30,7 @@ func NewBlock(data string, preBlockHash []byte) *Block {
 		[]byte{},
 		0,
 	}
-	pow := proofofwork.NewProofOfWork(block)
+	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
 	block.Hash = hash
 	block.Nonce = nonce
