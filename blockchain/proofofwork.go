@@ -50,7 +50,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 
 		hasInt.SetBytes(hash[:])
 		if hasInt.Cmp(pow.target) == -1 {
-			log.Println("end calc block:",  string(pow.block.Data))
+			log.Println("end calc block:",  string(pow.block.Data), ", get nonce:", nonce)
 			log.Printf("\r%x", hash)
 			break
 		} else {
