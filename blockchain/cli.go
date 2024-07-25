@@ -8,7 +8,7 @@ import (
 )
 
 type CLI struct {
-	bc *BlockChain
+	Bc *BlockChain
 }
 
 func (cli *CLI) printUsage() {
@@ -25,18 +25,19 @@ func (cli *CLI) validArgs() {
 }
 
 func (cli *CLI) addBlock(data string) {
-	cli.bc.AddBlock(data)
+	cli.Bc.AddBlock(data)
 }
 
 func (cli *CLI) printChain() {
-	iterator := cli.bc.Iterator()
+	iterator := cli.Bc.Iterator()
 	for  {
 		block := iterator.Next()
 		log.Printf("Pre hash: %x\n", block.PreBlockHash)
-		log.Println("Data: ", block.Data)
-		log.Println("Hash: ", block.Hash)
+		log.Println("Data: ", string(block.Data))
+		log.Printf("Hash: %x\n", block.Hash)
 		pow := NewProofOfWork(block)
 		log.Println("Pow: ", strconv.FormatBool(pow.Validate()))
+		log.Println()
 		if len(block.PreBlockHash) == 0 {
 			log.Println("iterator chain completed")
 			break

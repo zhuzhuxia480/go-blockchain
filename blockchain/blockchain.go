@@ -8,7 +8,7 @@ import (
 
 type BlockChain struct {
 	tip []byte
-	db  *bolt.DB
+	Db  *bolt.DB
 }
 
 type BlockchainIterator struct {
@@ -16,11 +16,11 @@ type BlockchainIterator struct {
 	db          *bolt.DB
 }
 
-const dbFile = "blockchain.db"
+const dbFile = "blockchain.Db"
 const blockBucket = "blocks"
 
 func (bc *BlockChain)Iterator() *BlockchainIterator {
-	return &BlockchainIterator{bc.tip, bc.db}
+	return &BlockchainIterator{bc.tip, bc.Db}
 }
 
 func (it *BlockchainIterator) Next() *Block {
@@ -40,7 +40,7 @@ func (it *BlockchainIterator) Next() *Block {
 
 func (bc *BlockChain) AddBlock(data string) {
 	var lastHash []byte
-	err := bc.db.View(func(tx *bolt.Tx) error {
+	err := bc.Db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(blockBucket))
 		lastHash = bucket.Get([]byte("l"))
 		return nil
@@ -50,7 +50,7 @@ func (bc *BlockChain) AddBlock(data string) {
 	}
 	block := NewBlock(data, lastHash)
 
-	err = bc.db.Update(func(tx *bolt.Tx) error {
+	err = bc.Db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(blockBucket))
 		err := bucket.Put([]byte("l"), block.Hash)
 		if err != nil {
@@ -78,8 +78,8 @@ func NewBlockChain() *BlockChain {
 	err = db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blockBucket))
 		if b == nil {
-			log.Println("this is no exist blockchain in db, create a new one")
-			b, err = b.CreateBucket([]byte(blockBucket))
+			log.Println("this is no exist blockchain in Db, create a new one")
+			b, err = tx.CreateBucket([]byte(blockBucket))
 			if err != nil {
 				return err
 			}
@@ -99,7 +99,7 @@ func NewBlockChain() *BlockChain {
 		return nil
 	})
 	if err != nil {
-		log.Panicln("db update err:", err)
+		log.Panicln("Db update err:", err)
 	}
 	return &BlockChain{tip, db}
 }
