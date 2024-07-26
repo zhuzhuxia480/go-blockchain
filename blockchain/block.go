@@ -5,13 +5,12 @@ import (
 	"crypto/sha256"
 	"encoding/gob"
 	"log"
-	"strconv"
 	"time"
 )
 
 type Block struct {
 	Timestamp    int64
-	Data         []byte
+	Transactions []*Transaction
 	PreBlockHash []byte
 	Hash         []byte
 	Nonce        int
@@ -37,17 +36,20 @@ func DeSerialize(data []byte) *Block {
 	return &block
 }
 
-func (b *Block) SetHash() {
-	timeStamp := []byte(strconv.FormatInt(b.Timestamp, 10))
-	headers := bytes.Join([][]byte{b.PreBlockHash, b.Data, timeStamp}, []byte{})
-	hash := sha256.Sum256(headers)
-	b.Hash = hash[:]
+// HashTransactions returns a hash of the transaction in the block
+func (b *Block) HashTransactions() []byte {
+	var txHashes [][]byte
+	for _, tx := range b.Transactions {
+		txHashes = append(txHashes, tx.ID)
+	}
+	txHash := sha256.Sum256(bytes.Join(txHashes, []byte{}))
+	return txHash[:]
 }
 
-func NewBlock(data string, preBlockHash []byte) *Block {
+func NewBlock(transactions []*Transaction, preBlockHash []byte) *Block {
 	block := &Block{
 		time.Now().Unix(),
-		[]byte(data),
+		transactions,
 		preBlockHash,
 		[]byte{},
 		0,
@@ -59,6 +61,6 @@ func NewBlock(data string, preBlockHash []byte) *Block {
 	return block
 }
 
-func NewGenesisBlock() *Block {
-	return NewBlock("Genesis Block", []byte{})
+func NewGenesisBlock(coinbase *Transaction) *Block {
+	return NewBlock([]*Transaction{coinbase}, []byte{})
 }
