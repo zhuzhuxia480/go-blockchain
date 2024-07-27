@@ -29,7 +29,7 @@ func NewProofOfWork(b *Block) *ProofOfWork {
 func (pow *ProofOfWork) PrepareData(nonce int) []byte {
 	bytes := bytes.Join([][]byte{
 		pow.block.PreBlockHash,
-		pow.block.Data,
+		pow.block.HashTransactions(),
 		util.IntToHex(pow.block.Timestamp),
 		util.IntToHex(int64(targetBit)),
 		util.IntToHex(int64(nonce)),
@@ -40,7 +40,7 @@ func (pow *ProofOfWork) PrepareData(nonce int) []byte {
 
 
 func (pow *ProofOfWork) Run() (int, []byte) {
-	log.Println("start to calc block:", string(pow.block.Data))
+	log.Println("start to calc block:", string(pow.block.HashTransactions()))
 	nonce := 0
 	var hash [32]byte
 	var hasInt big.Int
@@ -50,7 +50,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 
 		hasInt.SetBytes(hash[:])
 		if hasInt.Cmp(pow.target) == -1 {
-			log.Println("end calc block:",  string(pow.block.Data), ", get nonce:", nonce)
+			log.Println("end calc block:",  string(pow.block.HashTransactions()), ", get nonce:", nonce)
 			log.Printf("\r%x", hash)
 			break
 		} else {
