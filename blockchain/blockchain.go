@@ -60,17 +60,20 @@ func (bc *BlockChain) FindUnspentTransactions(address string) []Transaction {
 		block := bci.Next()
 		for _, tx := range block.Transactions {
 			txID := hex.EncodeToString(tx.ID)
+			log.Printf("FindUnspentTransactions tx hash: %x\n", tx.ID)
 
 		Outputs:
 			for outIdx, out := range tx.Vout {
 				if spentTXOs[txID] != nil {
 					for _, spentOut := range spentTXOs[txID] {
 						if spentOut == outIdx {
+							log.Printf("txID:%x used\n", tx.ID)
 							continue Outputs
 						}
 					}
 				}
 				if out.CanBeUnlockedWith(address) {
+					log.Printf("txID:%x not used\n", tx.ID)
 					unSpentTXs = append(unSpentTXs, *tx)
 				}
 			}
