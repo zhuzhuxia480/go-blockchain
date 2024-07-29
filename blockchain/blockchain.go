@@ -12,11 +12,6 @@ type BlockChain struct {
 	Db  *bolt.DB
 }
 
-type BlockchainIterator struct {
-	currentHash []byte
-	db          *bolt.DB
-}
-
 const dbFile = "blockchain.Db"
 const blockBucket = "blocks"
 const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
@@ -127,21 +122,6 @@ Work:
 
 func (bc *BlockChain) Iterator() *BlockchainIterator {
 	return &BlockchainIterator{bc.tip, bc.Db}
-}
-
-func (it *BlockchainIterator) Next() *Block {
-	var block *Block
-	err := it.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(blockBucket))
-		obj := bucket.Get(it.currentHash)
-		block = DeSerialize(obj)
-		return nil
-	})
-	if err != nil {
-		log.Panicln(err)
-	}
-	it.currentHash = block.PreBlockHash
-	return block
 }
 
 func dbExists() bool {
