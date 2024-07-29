@@ -17,17 +17,6 @@ type Transaction struct {
 	Vout []TXOutput
 }
 
-type TXInput struct {
-	Txid      []byte
-	Vout      int
-	ScriptSig string
-}
-
-type TXOutput struct {
-	Value        int
-	ScriptPubKey string
-}
-
 // IsCoinbase checks whether the transaction is coinbase
 func (tx Transaction) IsCoinbase() bool {
 	return len(tx.Vin) == 1 && len(tx.Vin[0].Txid) == 0 && tx.Vin[0].Vout == -1

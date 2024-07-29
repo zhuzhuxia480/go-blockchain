@@ -12,11 +12,6 @@ type BlockChain struct {
 	Db  *bolt.DB
 }
 
-type BlockchainIterator struct {
-	currentHash []byte
-	db          *bolt.DB
-}
-
 const dbFile = "blockchain.Db"
 const blockBucket = "blocks"
 const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
@@ -132,21 +127,6 @@ func (bc *BlockChain) Iterator() *BlockchainIterator {
 	return &BlockchainIterator{bc.tip, bc.Db}
 }
 
-func (it *BlockchainIterator) Next() *Block {
-	var block *Block
-	err := it.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(blockBucket))
-		obj := bucket.Get(it.currentHash)
-		block = DeSerialize(obj)
-		return nil
-	})
-	if err != nil {
-		log.Panicln(err)
-	}
-	it.currentHash = block.PreBlockHash
-	return block
-}
-
 func dbExists() bool {
 	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
 		return false
@@ -181,13 +161,14 @@ func CreateBlockchain(address string) *BlockChain {
 		os.Exit(1)
 	}
 	var tip []byte
+	cbtx := NewCoinbaseTX(address, genesisCoinbaseData)
+	block := NewGenesisBlock(cbtx)
+
 	db, err := bolt.Open(dbFile, os.ModePerm, nil)
 	if err != nil {
 		log.Panicln(err)
 	}
 	err = db.Update(func(tx *bolt.Tx) error {
-		cbtx := NewCoinbaseTX(address, genesisCoinbaseData)
-		block := NewGenesisBlock(cbtx)
 		bucket, err := tx.CreateBucket([]byte(blockBucket))
 		if err != nil {
 			log.Panicln(err)
