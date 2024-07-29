@@ -158,13 +158,14 @@ func CreateBlockchain(address string) *BlockChain {
 		os.Exit(1)
 	}
 	var tip []byte
+	cbtx := NewCoinbaseTX(address, genesisCoinbaseData)
+	block := NewGenesisBlock(cbtx)
+
 	db, err := bolt.Open(dbFile, os.ModePerm, nil)
 	if err != nil {
 		log.Panicln(err)
 	}
 	err = db.Update(func(tx *bolt.Tx) error {
-		cbtx := NewCoinbaseTX(address, genesisCoinbaseData)
-		block := NewGenesisBlock(cbtx)
 		bucket, err := tx.CreateBucket([]byte(blockBucket))
 		if err != nil {
 			log.Panicln(err)
