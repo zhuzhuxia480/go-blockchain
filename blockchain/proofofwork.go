@@ -43,6 +43,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	nonce := 0
 	var hash [32]byte
 	var hasInt big.Int
+	log.Println("Mining a new block")
 	for nonce = 0; nonce < maxNonce; nonce++ {
 		data := pow.PrepareData(nonce)
 		hash = sha256.Sum256(data)
