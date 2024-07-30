@@ -9,12 +9,6 @@ import (
 type CLI struct {
 }
 
-func (cli *CLI) createBlockchain(address string) {
-	blockchain := CreateBlockchain(address)
-	blockchain.Db.Close()
-	log.Println("Create BlockChain Done!")
-}
-
 func (cli *CLI) validArgs() {
 	if len(os.Args) < 2 {
 		cli.printUsage()
