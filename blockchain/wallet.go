@@ -6,8 +6,10 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/gob"
 	"golang.org/x/crypto/ripemd160"
 	"log"
+	"math/big"
 )
 
 const version = byte(0x00)
@@ -27,7 +29,7 @@ func NewWallet() *Wallet {
 
 func (w *Wallet) GetAddress() []byte {
 	pubKeyHash := HashPubKey(w.PublicKey)
-	versionPayload := append([]byte(version), pubKeyHash...)
+	versionPayload := append([]byte{version}, pubKeyHash...)
 	checksum := checksum(versionPayload)
 	fullyPayload := append(versionPayload, checksum...)
 	address := Base58Encode(fullyPayload)
@@ -69,6 +71,61 @@ func newKeyPair() (ecdsa.PrivateKey, []byte) {
 	return *private, pubKey
 }
 
+type _PrivateKey struct {
+	D          *big.Int
+	PublicKeyX *big.Int
+	PublicKeyY *big.Int
+}
+
+func (w *Wallet) GobEncode() ([]byte, error) {
+	privKey := &_PrivateKey{
+		D:          w.PrivateKey.D,
+		PublicKeyX: w.PrivateKey.PublicKey.X,
+		PublicKeyY: w.PrivateKey.PublicKey.Y,
+	}
+
+	var buf bytes.Buffer
+
+	encoder := gob.NewEncoder(&buf)
+	err := encoder.Encode(privKey)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = buf.Write(w.PublicKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+func (w *Wallet) GobDecode(data []byte) error {
+	buf := bytes.NewBuffer(data)
+	var privKey _PrivateKey
+
+	decoder := gob.NewDecoder(buf)
+	err := decoder.Decode(&privKey)
+	if err != nil {
+		return err
+	}
+
+	w.PrivateKey = ecdsa.PrivateKey{
+		D: privKey.D,
+		PublicKey: ecdsa.PublicKey{
+			X:     privKey.PublicKeyX,
+			Y:     privKey.PublicKeyY,
+			Curve: elliptic.P256(),
+		},
+	}
+	w.PublicKey = make([]byte, buf.Len())
+	_, err = buf.Read(w.PublicKey)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 
 

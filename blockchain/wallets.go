@@ -2,7 +2,6 @@ package blockchain
 
 import (
 	"bytes"
-	"crypto/elliptic"
 	"encoding/gob"
 	"log"
 	"os"
@@ -22,7 +21,7 @@ func NewWallets() (*Wallets, error) {
 func (ws *Wallets) CreateWallet() string {
 	wallet := NewWallet()
 	address := wallet.GetAddress()
-	//TODO judge string([]byte) whether equal to fmt.Sprintf("%s", []byte)
+	log.Printf("get new address:%s", address)
 	ws.Wallets[string(address)] = wallet
 	return string(address)
 }
@@ -50,9 +49,11 @@ func (ws *Wallets) LoadFromFile() error {
 	}
 
 	var wallets Wallets
-	gob.Register(elliptic.P256())
 	decoder := gob.NewDecoder(bytes.NewReader(fileContent))
 	err = decoder.Decode(&wallets)
+	if err != nil {
+		log.Panicln(err)
+	}
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -62,18 +63,16 @@ func (ws *Wallets) LoadFromFile() error {
 
 func (ws Wallets) SaveToFile() {
 	var content bytes.Buffer
-	gob.Register(elliptic.P256())
 	encoder := gob.NewEncoder(&content)
-	err := encoder.Encode(ws)
+	err := encoder.Encode(&ws)
 	if err != nil {
-		log.Panicln(err)
+		log.Panic(err)
 	}
-	err = os.WriteFile(walletFile, content.Bytes(), os.ModePerm)
+	err = os.WriteFile(walletFile, content.Bytes(), 0644)
 	if err != nil {
-		log.Panicln(err)
+		log.Panic(err)
 	}
 }
-
 
 
 
