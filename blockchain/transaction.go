@@ -214,6 +214,6 @@ func NewUTXOTransaction(from, to string, amount int, bc *BlockChain) *Transactio
 		Vout: outputs,
 	}
 	tx.ID = tx.Hash()
-	bc.SignTranscation(&tx, wallet.PrivateKey)
+	bc.SignTransaction(&tx, wallet.PrivateKey)
 	return &tx
 }
