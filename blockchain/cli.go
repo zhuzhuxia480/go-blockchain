@@ -4,7 +4,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"strconv"
 )
 
 type CLI struct {
@@ -33,25 +32,6 @@ func (cli *CLI) validArgs() {
 	if len(os.Args) < 2 {
 		cli.printUsage()
 		os.Exit(1)
-	}
-}
-
-
-func (cli *CLI) printChain() {
-	bc := NewBlockChain("")
-	defer bc.Db.Close()
-	iterator := bc.Iterator()
-	for {
-		block := iterator.Next()
-		log.Printf("Pre hash: %x\n", block.PreBlockHash)
-		log.Printf("Hash: %x\n", block.Hash)
-		pow := NewProofOfWork(block)
-		log.Println("Pow: ", strconv.FormatBool(pow.Validate()))
-		log.Println()
-		if len(block.PreBlockHash) == 0 {
-			log.Println("iterator chain completed")
-			break
-		}
 	}
 }
 
