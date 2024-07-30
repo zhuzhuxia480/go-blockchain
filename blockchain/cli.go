@@ -15,19 +15,6 @@ func (cli *CLI) createBlockchain(address string) {
 	log.Println("Create BlockChain Done!")
 }
 
-func (cli *CLI) getBalance(address string) {
-	bc := NewBlockChain(address)
-	defer bc.Db.Close()
-
-	balance := 0
-	UTXOs := bc.FindUTXO(address)
-
-	for _, out := range UTXOs {
-		balance += out.Value
-	}
-	log.Printf("Balance of '%s' is : '%d'", address, balance)
-}
-
 func (cli *CLI) validArgs() {
 	if len(os.Args) < 2 {
 		cli.printUsage()
