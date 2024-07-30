@@ -18,16 +18,20 @@ func (cli *CLI) validArgs() {
 
 func (cli *CLI) printUsage() {
 	log.Println("Usage:")
-	log.Println("  getbalance --address ADDRESS - Get balance of ADDRESS")
-	log.Println("  createblockchain --address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS")
-	log.Println("  printchain - Print all the blocks  of the blockchain")
-	log.Println("  send -from FROM -to TO -amount AMOUNT - Send AMOUNT of coins from FROM to TO")
+	log.Println("  createblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS")
+	log.Println("  createwallet - Generates a new key-pair and saves it into the wallet file")
+	log.Println("  getbalance -address ADDRESS - Get balance of ADDRESS")
+	log.Println("  listaddresses - Lists all addresses from the wallet file")
+	log.Println("  printchain - Print all the blocks of the blockchain")
+	log.Println("  send -from FROM -to TO -amount AMOUNT - Send AMOUNT of coins from FROM address to TO")
 }
 
 func (cli *CLI) Run() {
 	cli.validArgs()
 	getBalanceCmd := flag.NewFlagSet("getbalance", flag.ExitOnError)
 	createBlockchainCmd := flag.NewFlagSet("createblockchain", flag.ExitOnError)
+	createWalletCmd := flag.NewFlagSet("createwallet", flag.ExitOnError)
+	listAddressesCmd := flag.NewFlagSet("listaddresses", flag.ExitOnError)
 	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
 
@@ -45,6 +49,16 @@ func (cli *CLI) Run() {
 		}
 	case "createblockchain":
 		err := createBlockchainCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panicln(err)
+		}
+	case "createwallet":
+		err := createWalletCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panicln(err)
+		}
+	case "listaddresses":
+		err := listAddressesCmd.Parse(os.Args[2:])
 		if err != nil {
 			log.Panicln(err)
 		}
@@ -77,6 +91,14 @@ func (cli *CLI) Run() {
 			os.Exit(1)
 		}
 		cli.createBlockchain(*createBlockchainAddress)
+	}
+
+	if createWalletCmd.Parsed() {
+		cli.createWallet()
+	}
+
+	if listAddressesCmd.Parsed() {
+		cli.listAddress()
 	}
 
 	if printChainCmd.Parsed() {
