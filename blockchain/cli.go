@@ -55,15 +55,6 @@ func (cli *CLI) printChain() {
 	}
 }
 
-func (cli *CLI) send(from, to string, amount int) {
-	bc := NewBlockChain(from)
-	defer bc.Db.Close()
-
-	tx := NewUTXOTransaction(from, to, amount, bc)
-	bc.MineBLock([]*Transaction{tx})
-	log.Println("Success!")
-}
-
 func (cli *CLI) printUsage() {
 	log.Println("Usage:")
 	log.Println("  getbalance --address ADDRESS - Get balance of ADDRESS")
