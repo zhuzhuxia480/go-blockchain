@@ -9,7 +9,7 @@ import (
 	"math/big"
 )
 
-const targetBit = 24
+const targetBit = 16
 const maxNonce = math.MaxInt64
 
 type ProofOfWork struct {
