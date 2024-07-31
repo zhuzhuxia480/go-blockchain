@@ -1,6 +1,10 @@
 package blockchain
 
-import "bytes"
+import (
+	"bytes"
+	"encoding/gob"
+	"log"
+)
 
 type TXOutput struct {
 	Value      int
@@ -23,3 +27,44 @@ func NewTXOutput(value int, address string) *TXOutput {
 	txo.Lock([]byte(address))
 	return txo
 }
+
+type TXOutputs struct {
+	Outputs []TXOutput
+}
+
+func (outs TXOutputs) Serialize() []byte {
+	var buf bytes.Buffer
+	encoder := gob.NewEncoder(&buf)
+	err := encoder.Encode(outs)
+	if err != nil {
+		log.Panicln(err)
+	}
+	return buf.Bytes()
+}
+
+func DeserializeOutputs(data []byte) TXOutputs {
+	var outputs TXOutputs
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	err := decoder.Decode(&outputs)
+	if err != nil {
+		log.Panicln(err)
+	}
+	return outputs
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
