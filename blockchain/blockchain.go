@@ -15,7 +15,7 @@ type BlockChain struct {
 	Db  *bolt.DB
 }
 
-const dbFile = "blockchain.Db"
+const dbFile = "Blockchain.Db"
 const blockBucket = "blocks"
 const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
 
@@ -155,7 +155,7 @@ func dbExists() bool {
 
 func NewBlockChain() *BlockChain {
 	if dbExists() == false {
-		log.Println("No existing blockchain found. Create one first.")
+		log.Println("No existing Blockchain found. Create one first.")
 		os.Exit(1)
 	}
 	var tip []byte

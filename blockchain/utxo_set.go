@@ -7,7 +7,7 @@ import (
 )
 
 type UTXOSet struct {
-	blockchain *BlockChain
+	Blockchain *BlockChain
 }
 
 const utxoBucket = "chainstate"
@@ -15,7 +15,7 @@ const utxoBucket = "chainstate"
 func (u UTXOSet) FindSpendableOutputs(pubKeyHash []byte, amount int) (int, map[string][]int) {
 	unspentOutputs := make(map[string][]int)
 	accumulated := 0
-	db := u.blockchain.Db
+	db := u.Blockchain.Db
 	err := db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(utxoBucket))
 		c := bucket.Cursor()
@@ -41,7 +41,7 @@ func (u UTXOSet) FindSpendableOutputs(pubKeyHash []byte, amount int) (int, map[s
 
 func (u UTXOSet) FindUTXO(pubKeyHash []byte) []TXOutput {
 	var UTXOs []TXOutput
-	db := u.blockchain.Db
+	db := u.Blockchain.Db
 
 	err := db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(utxoBucket))
@@ -63,7 +63,7 @@ func (u UTXOSet) FindUTXO(pubKeyHash []byte) []TXOutput {
 }
 
 func (u UTXOSet) CountTransactions() int {
-	db := u.blockchain.Db
+	db := u.Blockchain.Db
 	counter := 0
 
 	err := db.View(func(tx *bolt.Tx) error {
@@ -81,7 +81,7 @@ func (u UTXOSet) CountTransactions() int {
 }
 
 func (u UTXOSet) Reindex() {
-	db := u.blockchain.Db
+	db := u.Blockchain.Db
 	bucketName := []byte(utxoBucket)
 
 	err := db.Update(func(tx *bolt.Tx) error {
@@ -98,7 +98,7 @@ func (u UTXOSet) Reindex() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	UTXO := u.blockchain.FindUTXO()
+	UTXO := u.Blockchain.FindUTXO()
 
 	err = db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
@@ -121,7 +121,7 @@ func (u UTXOSet) Reindex() {
 }
 
 func (u UTXOSet) Update(block *Block) {
-	db := u.blockchain.Db
+	db := u.Blockchain.Db
 
 	err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utxoBucket))
