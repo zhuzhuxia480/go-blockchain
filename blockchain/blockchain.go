@@ -20,7 +20,7 @@ const blockBucket = "blocks"
 const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
 
 // MineBLock mines a block with the provided transactions
-func (bc *BlockChain) MineBLock(transactions []*Transaction) {
+func (bc *BlockChain) MineBLock(transactions []*Transaction) *Block {
 	var lastHash []byte
 
 	for _, tx := range transactions {
@@ -54,6 +54,7 @@ func (bc *BlockChain) MineBLock(transactions []*Transaction) {
 	if err != nil {
 		log.Panicln(err)
 	}
+	return newBlock
 }
 
 func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
@@ -127,6 +128,9 @@ func (bc *BlockChain) FindTransaction(ID []byte) (Transaction, error) {
 }
 
 func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
+	if tx.IsCoinbase() {
+		return true
+	}
 	prevTXs := make(map[string]Transaction)
 	for _, vin := range tx.Vin {
 		prevTX, err := bc.FindTransaction(vin.Txid)
