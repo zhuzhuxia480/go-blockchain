@@ -8,6 +8,8 @@ func (cli *CLI) createBlockchain(address string) {
 	}
 	blockchain := CreateBlockchain(address)
 	blockchain.Db.Close()
+	set := UTXOSet{blockchain}
+	set.Reindex()
 	log.Println("Create BlockChain Done!")
 }
 
