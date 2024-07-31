@@ -69,7 +69,7 @@ func (u UTXOSet) CountTransactions() int {
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utxoBucket))
 		c := b.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
+		for k, _ := c.First(); k != nil; k, _ = c.Next() {
 			counter++
 		}
 		return nil
