@@ -12,7 +12,7 @@ type MerKleNode struct {
 	Data  []byte
 }
 
-func NewMerKleTree(data [][]byte) *MerKleTree {
+func NewMerkleTree(data [][]byte) *MerKleTree {
 	var nodes []MerKleNode
 	if len(data) %2 != 0 {
 		data = append(data, data[len(data)-1])
@@ -27,7 +27,7 @@ func NewMerKleTree(data [][]byte) *MerKleTree {
 		var newLevel []MerKleNode
 		for j := 0; j < len(nodes); j+=2 {
 			node := NewMerkleNode(&nodes[j], &nodes[j+1], nil)
-			newLevel = append(newLevel, node)
+			newLevel = append(newLevel, *node)
 		}
 		nodes = newLevel
 	}
