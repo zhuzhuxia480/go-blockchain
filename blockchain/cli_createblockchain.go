@@ -7,9 +7,9 @@ func (cli *CLI) createBlockchain(address string) {
 		log.Panicln("ERROR: address is not valid")
 	}
 	blockchain := CreateBlockchain(address)
-	blockchain.Db.Close()
 	set := UTXOSet{blockchain}
 	set.Reindex()
+	blockchain.Db.Close()
 	log.Println("Create BlockChain Done!")
 }
 
