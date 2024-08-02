@@ -61,15 +61,17 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, preTXs map[string]Transact
 		preTx := preTXs[hex.EncodeToString(vin.Txid)]
 		txCopy.Vin[inID].Signature = nil
 		txCopy.Vin[inID].PubKey = preTx.Vout[vin.Vout].PubKeyHash
-		txCopy.ID = txCopy.Hash()
-		txCopy.Vin[inID].PubKey = nil
 
-		r, s, err := ecdsa.Sign(rand.Reader, &privKey, txCopy.ID)
+		dataToSign := fmt.Sprintf("%x\n", txCopy)
+
+		r, s, err := ecdsa.Sign(rand.Reader, &privKey, []byte(dataToSign))
 		if err != nil {
 			log.Panic(err)
 		}
 		sig := append(r.Bytes(), s.Bytes()...)
 		tx.Vin[inID].Signature = sig
+
+		txCopy.Vin[inID].PubKey = nil
 	}
 }
 
