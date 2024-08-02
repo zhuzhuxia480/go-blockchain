@@ -89,6 +89,22 @@ func (bc *BlockChain) AddBlock(block *Block) {
 	}
 }
 
+func (bc *BlockChain) GetBestHeight() int {
+	var lastBlock Block
+	err := bc.Db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(blockBucket))
+		lastHash := bucket.Get([]byte("l"))
+		lastBlock = *DeSerializeBlock(bucket.Get(lastHash))
+		return nil
+	})
+	if err != nil {
+		log.Panicln(err)
+	}
+	return lastBlock.Height
+}
+
+
+
 func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	preTXs := make(map[string]Transaction)
 
@@ -102,8 +118,6 @@ func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey)
 	tx.Sign(privKey, preTXs)
 }
 
-
-
 // FindUTXO finds and return unspent transactions outputs
 func (bc *BlockChain) FindUTXO() map[string]TXOutputs {
 	UTXO := make(map[string]TXOutputs)
@@ -115,19 +129,19 @@ func (bc *BlockChain) FindUTXO() map[string]TXOutputs {
 		for _, tx := range block.Transactions {
 			txID := hex.EncodeToString(tx.ID)
 
-			Outputs:
-				for outIdx, out := range tx.Vout {
-					if spentTXOs[txID] != nil {
-						for _, spentOutIdx := range spentTXOs[txID] {
-							if spentOutIdx == outIdx {
-								continue Outputs
-							}
+		Outputs:
+			for outIdx, out := range tx.Vout {
+				if spentTXOs[txID] != nil {
+					for _, spentOutIdx := range spentTXOs[txID] {
+						if spentOutIdx == outIdx {
+							continue Outputs
 						}
 					}
-					outs := UTXO[txID]
-					outs.Outputs = append(outs.Outputs, out)
-					UTXO[txID] = outs
 				}
+				outs := UTXO[txID]
+				outs.Outputs = append(outs.Outputs, out)
+				UTXO[txID] = outs
+			}
 			if tx.IsCoinbase() == false {
 				for _, in := range tx.Vin {
 					inTxID := hex.EncodeToString(in.Txid)
