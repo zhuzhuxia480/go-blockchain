@@ -13,6 +13,7 @@ type Block struct {
 	PreBlockHash []byte
 	Hash         []byte
 	Nonce        int
+	Height       int
 }
 
 func (b *Block) Serialize() []byte {
@@ -45,13 +46,14 @@ func (b *Block) HashTransactions() []byte {
 	return tree.RootNode.Data
 }
 
-func NewBlock(transactions []*Transaction, preBlockHash []byte) *Block {
+func NewBlock(transactions []*Transaction, preBlockHash []byte, height int) *Block {
 	block := &Block{
 		time.Now().Unix(),
 		transactions,
 		preBlockHash,
 		[]byte{},
 		0,
+		height,
 	}
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
@@ -61,5 +63,5 @@ func NewBlock(transactions []*Transaction, preBlockHash []byte) *Block {
 }
 
 func NewGenesisBlock(coinbase *Transaction) *Block {
-	return NewBlock([]*Transaction{coinbase}, []byte{})
+	return NewBlock([]*Transaction{coinbase}, []byte{}, 0)
 }
