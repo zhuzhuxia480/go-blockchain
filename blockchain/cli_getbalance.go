@@ -2,12 +2,12 @@ package blockchain
 
 import "log"
 
-func (cli *CLI) getBalance(address string) {
+func (cli *CLI) getBalance(address, nodeID string) {
 	if !ValidateAddress(address) {
 		log.Panicln("ERROR: address is not valid")
 	}
 
-	bc := NewBlockChain()
+	bc := NewBlockChain(nodeID)
 	defer bc.Db.Close()
 	UTXOSet := UTXOSet{bc}
 
