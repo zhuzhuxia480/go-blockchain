@@ -36,6 +36,10 @@ func DeSerialize(data []byte) *Block {
 	return &block
 }
 
+func DeSerializeBlock(d []byte) *Block {
+	return DeSerialize(d)
+}
+
 // HashTransactions returns a hash of the transaction in the block
 func (b *Block) HashTransactions() []byte {
 	var txHashes [][]byte
