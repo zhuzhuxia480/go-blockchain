@@ -15,7 +15,7 @@ type BlockChain struct {
 	Db  *bolt.DB
 }
 
-const dbFile = "blockchain.Db"
+const dbFile = "blockchain_%s.db"
 const blockBucket = "blocks"
 const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
 
