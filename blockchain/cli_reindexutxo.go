@@ -4,8 +4,8 @@ import (
 	"log"
 )
 
-func (cli *CLI) reindexUTXO() {
-	bc := NewBlockChain()
+func (cli *CLI) reindexUTXO(nodeID string) {
+	bc := NewBlockChain(nodeID)
 	set := UTXOSet{bc}
 	set.Reindex()
 	count := set.CountTransactions()
