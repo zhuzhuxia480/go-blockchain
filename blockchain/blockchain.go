@@ -103,7 +103,23 @@ func (bc *BlockChain) GetBestHeight() int {
 	return lastBlock.Height
 }
 
+func (bc *BlockChain) GetBlock(blockHash []byte) (Block, error) {
+	var block Block
 
+	err := bc.Db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(blockBucket))
+		blockData := bucket.Get(blockHash)
+		if blockData == nil {
+			return errors.New("block is not found")
+		}
+		block = *DeSerializeBlock(blockData)
+		return nil
+	})
+	if err != nil {
+		return block, err
+	}
+	return block, nil
+}
 
 func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	preTXs := make(map[string]Transaction)
