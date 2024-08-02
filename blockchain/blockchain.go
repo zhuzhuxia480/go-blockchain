@@ -121,6 +121,21 @@ func (bc *BlockChain) GetBlock(blockHash []byte) (Block, error) {
 	return block, nil
 }
 
+func (bc *BlockChain) GetBlockHashes() [][]byte {
+	var blocks [][]byte
+	bci := bc.Iterator()
+
+	for {
+		block := bci.Next()
+		blocks = append(blocks, block.Hash)
+		if len(block.PreBlockHash) == 0 {
+			break
+		}
+	}
+	return blocks
+}
+
+
 func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	preTXs := make(map[string]Transaction)
 
