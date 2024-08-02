@@ -134,8 +134,6 @@ func (tx *Transaction) Verify(preTXs map[string]Transaction) bool {
 		preTx := preTXs[hex.EncodeToString(vin.Txid)]
 		txCopy.Vin[inID].Signature = nil
 		txCopy.Vin[inID].PubKey = preTx.Vout[vin.Vout].PubKeyHash
-		txCopy.ID = txCopy.Hash()
-		txCopy.Vin[inID].PubKey = nil
 
 		r := big.Int{}
 		s := big.Int{}
@@ -149,10 +147,12 @@ func (tx *Transaction) Verify(preTXs map[string]Transaction) bool {
 		x.SetBytes(vin.PubKey[:(keyLen / 2)])
 		y.SetBytes(vin.PubKey[(keyLen / 2):])
 
+		dataToVerify := fmt.Sprintf("%x\n", txCopy)
 		rawPubKey := ecdsa.PublicKey{Curve: curve, X: &x, Y: &y}
-		if ecdsa.Verify(&rawPubKey, txCopy.ID, &r, &s) == false {
+		if ecdsa.Verify(&rawPubKey, []byte(dataToVerify), &r, &s) == false {
 			return false
 		}
+		txCopy.Vin[inID].PubKey = nil
 	}
 	return true
 }
