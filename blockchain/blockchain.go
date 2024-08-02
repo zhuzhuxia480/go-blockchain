@@ -23,6 +23,7 @@ const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second
 // MineBLock mines a block with the provided transactions
 func (bc *BlockChain) MineBLock(transactions []*Transaction) *Block {
 	var lastHash []byte
+	var lastHeight int
 
 	for _, tx := range transactions {
 		if !bc.VerifyTransaction(tx) {
@@ -33,12 +34,13 @@ func (bc *BlockChain) MineBLock(transactions []*Transaction) *Block {
 	err := bc.Db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(blockBucket))
 		lastHash = bucket.Get([]byte("l"))
+		lastHeight = DeSerializeBlock(bucket.Get(lastHash)).Height
 		return nil
 	})
 	if err != nil {
 		log.Panicln(err)
 	}
-	newBlock := NewBlock(transactions, lastHash)
+	newBlock := NewBlock(transactions, lastHash, lastHeight+1)
 	err = bc.Db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(blockBucket))
 		err := bucket.Put(newBlock.Hash, newBlock.Serialize())
@@ -134,7 +136,6 @@ func (bc *BlockChain) GetBlockHashes() [][]byte {
 	}
 	return blocks
 }
-
 
 func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	preTXs := make(map[string]Transaction)
