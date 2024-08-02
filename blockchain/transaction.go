@@ -138,14 +138,14 @@ func (tx *Transaction) Verify(preTXs map[string]Transaction) bool {
 		r := big.Int{}
 		s := big.Int{}
 		sigLen := len(vin.Signature)
-		r.SetBytes(vin.Signature[:(sigLen/2)])
-		s.SetBytes(vin.Signature[(sigLen/2):])
+		r.SetBytes(vin.Signature[:(sigLen / 2)])
+		s.SetBytes(vin.Signature[(sigLen / 2):])
 
 		x := big.Int{}
 		y := big.Int{}
 		keyLen := len(vin.PubKey)
-		x.SetBytes(vin.PubKey[:(keyLen/2)])
-		y.SetBytes(vin.PubKey[(keyLen/2):])
+		x.SetBytes(vin.PubKey[:(keyLen / 2)])
+		y.SetBytes(vin.PubKey[(keyLen / 2):])
 
 		rawPubKey := ecdsa.PublicKey{Curve: curve, X: &x, Y: &y}
 		if ecdsa.Verify(&rawPubKey, txCopy.ID, &r, &s) == false {
@@ -206,7 +206,7 @@ func NewUTXOTransaction(from, to string, amount int, UTXOSet *UTXOSet) *Transact
 	}
 	outputs = append(outputs, *NewTXOutput(amount, to))
 	if acc > amount {
-		outputs = append(outputs, *NewTXOutput(acc - amount, from)) // a change
+		outputs = append(outputs, *NewTXOutput(acc-amount, from)) // a change
 	}
 	tx := Transaction{
 		ID:   nil,
@@ -216,4 +216,14 @@ func NewUTXOTransaction(from, to string, amount int, UTXOSet *UTXOSet) *Transact
 	tx.ID = tx.Hash()
 	UTXOSet.Blockchain.SignTransaction(&tx, wallet.PrivateKey)
 	return &tx
+}
+
+func DeserializeTransaction(data []byte) Transaction {
+	var transaction Transaction
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	err := decoder.Decode(&transaction)
+	if err != nil {
+		log.Panicln(err)
+	}
+	return transaction
 }
