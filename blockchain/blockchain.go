@@ -58,6 +58,37 @@ func (bc *BlockChain) MineBLock(transactions []*Transaction) *Block {
 	return newBlock
 }
 
+func (bc *BlockChain) AddBlock(block *Block) {
+	err := bc.Db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(blockBucket))
+		blockInDb := b.Get(block.Hash)
+		if blockInDb != nil {
+			return nil
+		}
+
+		blockData := block.Serialize()
+		err := b.Put(block.Hash, blockData)
+		if err != nil {
+			log.Panicln(err)
+		}
+
+		lastHash := b.Get([]byte("l"))
+		lastBlockData := b.Get(lastHash)
+		lastBlock := DeSerializeBlock(lastBlockData)
+		if block.Height > lastBlock.Height {
+			err := b.Put([]byte("l"), block.Hash)
+			if err != nil {
+				log.Panicln(err)
+			}
+			bc.tip = block.Hash
+		}
+		return nil
+	})
+	if err != nil {
+		log.Panicln(err)
+	}
+}
+
 func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	preTXs := make(map[string]Transaction)
 
