@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/boltdb/bolt"
 	"log"
 	"os"
@@ -146,15 +147,16 @@ func (bc *BlockChain) Iterator() *BlockchainIterator {
 	return &BlockchainIterator{bc.tip, bc.Db}
 }
 
-func dbExists() bool {
+func dbExists(dbFile string) bool {
 	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
-func NewBlockChain() *BlockChain {
-	if dbExists() == false {
+func NewBlockChain(nodeID string) *BlockChain {
+	dbFile := fmt.Sprintf(dbFile, nodeID)
+	if dbExists(dbFile) == false {
 		log.Println("No existing blockchain found. Create one first.")
 		os.Exit(1)
 	}
@@ -174,8 +176,9 @@ func NewBlockChain() *BlockChain {
 	return &BlockChain{tip, db}
 }
 
-func CreateBlockchain(address string) *BlockChain {
-	if dbExists() {
+func CreateBlockchain(address string, nodeID string) *BlockChain {
+	dbFile := fmt.Sprintf(dbFile, nodeID)
+	if dbExists(dbFile) {
 		log.Println("Blockchain already exists.")
 		os.Exit(1)
 	}
