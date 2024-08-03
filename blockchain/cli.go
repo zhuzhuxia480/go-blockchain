@@ -50,7 +50,7 @@ func (cli *CLI) Run() {
 	sendTo := sendCmd.String("to", "", "destination wallet address")
 	sendFrom := sendCmd.String("from", "", "source wallet address")
 	sendAmount := sendCmd.Int("amount", 0, "Amount to send")
-	sendMine := startNodeCmd.Bool("mine", false, "Mine immediately on the same node")
+	sendMine := sendCmd.Bool("mine", false, "Mine immediately on the same node")
 	startNodeMiner := startNodeCmd.String("miner", "", "")
 
 	switch os.Args[1] {
