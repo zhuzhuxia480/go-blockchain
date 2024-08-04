@@ -197,6 +197,7 @@ func handleBlock(request []byte, bc *BlockChain) {
 		sendGetData(payload.AddrFrom, "block", blockHash)
 		blocksInTransit = blocksInTransit[1:]
 	} else {
+//TODO pre block may not exist
 		UTXOSet := UTXOSet{bc}
 		UTXOSet.Reindex()
 	}
